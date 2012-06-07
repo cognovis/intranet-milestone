@@ -16,6 +16,14 @@ ad_page_contract {
 }
 
 set user_id [ad_maybe_redirect_for_registration]
+
+if {![info exists milestone_id]} {
+    ad_return_complaint 1 "No milestone_id specified"
+    ad_script_abort
+}
+
+
+
 set project_list $milestone_id
 
 if {0 == [llength $project_list]} { ad_returnredirect $return_url }
@@ -36,6 +44,10 @@ set sql "
 		$project_in_clause
 "
 db_dml del_projects $sql
+
+foreach pid $project_list {
+    im_audit -object_id $pid
+}
 
 ad_returnredirect $return_url
 
